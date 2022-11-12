@@ -1,4 +1,4 @@
-package com.samsalek.activityjournal.services.logger;
+package com.samsalek.basiclogger;
 
 import java.io.*;
 import java.time.LocalDateTime;
@@ -8,9 +8,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Logger {
-
-    private static final Map<String, Logger> LOGGER_MAP = new HashMap<>();
+public class BasicLogger {
+    private static final Map<String, BasicLogger> LOGGER_MAP = new HashMap<>();
     public static final String MAIN_LOGGER = "MAIN";
 
     private int row = 0;
@@ -20,15 +19,15 @@ public class Logger {
     private final String[] buffer = new String[bufferSize];;
     private int bufferPos = 0;
 
-    private Logger() {}
+    private BasicLogger() {}
 
-    public static Logger get() {
+    public static BasicLogger get() {
         return get(MAIN_LOGGER);
     }
 
-    public static Logger get(String loggerName) {
-        if(LOGGER_MAP.get(loggerName) == null) {
-            LOGGER_MAP.put(loggerName, new Logger());
+    public static BasicLogger get(String loggerName) {
+        if(LOGGER_MAP.get(loggerName.toUpperCase()) == null) {
+            LOGGER_MAP.put(loggerName, new BasicLogger());
         }
 
         return LOGGER_MAP.get(loggerName);
@@ -38,27 +37,27 @@ public class Logger {
         this.savePath = savePath;
     }
 
-    public void log(String text, Color color) {
+    public void log(String text, TextColor color) {
         print(text, color);
     }
 
     public void info(String text) {
-        print("INFO - " + text, Color.CYAN);
+        print("INFO - " + text, TextColor.CYAN);
     }
 
     public void warning(String text) {
-        print("WARNING - " + text, Color.YELLOW);
+        print("WARNING - " + text, TextColor.YELLOW);
     }
 
     public void error(String text) {
-        print("ERROR - " + text, Color.RED_BOLD);
+        print("ERROR - " + text, TextColor.RED_BOLD);
     }
 
-    private void print(String text, Color color) {
+    private void print(String text, TextColor color) {
         if(row == 0) {
             System.out.println();
         }
-        System.out.println(row + " : " + color.value + text + Color.RESET.value);
+        System.out.println(row + " : " + color.value + text + TextColor.RESET.value);
         row++;
 
         addToBuffer(text);
@@ -74,7 +73,7 @@ public class Logger {
         bufferPos++;
     }
 
-    public void createLogFile(String stackTrace) {
+    public void createLogFile() {
         if(savePath == null) {
             throw new NullPointerException("Log save path is not set! Assign it with the method 'setLogSavePath'.");
         }
@@ -91,30 +90,9 @@ public class Logger {
                     writer.write(s + "\n");
                 }
             }
-            writer.write(stackTrace);
             writer.close();
         } catch (IOException e) {
             e.printStackTrace();
-        }
-    }
-
-    public enum Color {
-        RESET("\u001b[0m"),
-        BLACK("\u001b[30m"),
-        WHITE("\u001b[37m"),
-        RED("\u001b[31m"),
-        RED_BOLD("\033[1;31m"),
-        GREEN("\u001b[32m"),
-        GREEN_BOLD("\033[1;32m"),
-        BLUE("\u001b[34m"),
-        YELLOW   ("\u001b[33m"),
-        MAGENTA("\u001b[35m"),
-        CYAN("\u001b[36m");
-
-        final String value;
-
-        Color(String value) {
-            this.value = value;
         }
     }
 }
